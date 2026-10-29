@@ -1,8 +1,8 @@
-package com.example.demo.repository;
+package com.mgs.claudecode.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.demo.entity.Person;
+import com.mgs.claudecode.entity.Person;
 
 public interface PersonRepository extends JpaRepository<Person, Long> {
 

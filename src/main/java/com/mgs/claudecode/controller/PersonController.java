@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+package com.mgs.claudecode.controller;
 
 import java.net.URI;
 import java.util.List;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dto.PersonRequest;
-import com.example.demo.dto.PersonResponse;
-import com.example.demo.service.PersonService;
+import com.mgs.claudecode.dto.PersonRequest;
+import com.mgs.claudecode.dto.PersonResponse;
+import com.mgs.claudecode.service.PersonService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

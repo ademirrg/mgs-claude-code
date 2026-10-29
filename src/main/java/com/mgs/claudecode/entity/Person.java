@@ -1,4 +1,4 @@
-package com.example.demo.entity;
+package com.mgs.claudecode.entity;
 
 import java.time.LocalDate;
 

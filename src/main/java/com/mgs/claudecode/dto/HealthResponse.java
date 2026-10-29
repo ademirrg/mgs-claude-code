@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+package com.mgs.claudecode.dto;
 
 import java.time.Instant;
 

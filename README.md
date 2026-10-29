@@ -67,7 +67,7 @@ curl.exe -X POST http://localhost:8080/api/persons `
 ## Project structure
 
 ```
-src/main/java/com/example/demo/
+src/main/java/com/mgs/claudecode/
 ├── config/       OpenAPI configuration
 ├── controller/   REST endpoints
 ├── service/      Business logic

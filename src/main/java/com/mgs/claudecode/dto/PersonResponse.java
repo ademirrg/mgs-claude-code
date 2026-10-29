@@ -1,8 +1,8 @@
-package com.example.demo.dto;
+package com.mgs.claudecode.dto;
 
 import java.time.LocalDate;
 
-import com.example.demo.entity.Person;
+import com.mgs.claudecode.entity.Person;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

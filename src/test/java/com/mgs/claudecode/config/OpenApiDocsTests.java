@@ -1,4 +1,4 @@
-package com.example.demo.config;
+package com.mgs.claudecode.config;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

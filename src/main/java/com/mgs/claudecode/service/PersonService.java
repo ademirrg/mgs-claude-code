@@ -1,16 +1,16 @@
-package com.example.demo.service;
+package com.mgs.claudecode.service;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.demo.dto.PersonRequest;
-import com.example.demo.dto.PersonResponse;
-import com.example.demo.entity.Person;
-import com.example.demo.exception.EmailAlreadyInUseException;
-import com.example.demo.exception.PersonNotFoundException;
-import com.example.demo.repository.PersonRepository;
+import com.mgs.claudecode.dto.PersonRequest;
+import com.mgs.claudecode.dto.PersonResponse;
+import com.mgs.claudecode.entity.Person;
+import com.mgs.claudecode.exception.EmailAlreadyInUseException;
+import com.mgs.claudecode.exception.PersonNotFoundException;
+import com.mgs.claudecode.repository.PersonRepository;
 
 @Service
 @Transactional(readOnly = true)
