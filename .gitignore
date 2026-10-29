@@ -13,11 +13,23 @@ target/
 .springBeans
 .sts4-cache
 
+### Eclipse ###
+.metadata
+.recommenders
+*.launch
+.loadpath
+
 ### IntelliJ IDEA ###
 .idea
 *.iws
 *.iml
 *.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### JetBrains Fleet ###
+.fleet/
 
 ### NetBeans ###
 /nbproject/private/
