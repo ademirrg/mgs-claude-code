@@ -1,5 +1,6 @@
 package com.mgs.claudecode.controller;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,8 +50,9 @@ class HealthControllerTests {
 
 	@Test
 	void actuatorHealthEndpointIsNotExposed() throws Exception {
-		mvc.perform(get("/actuator/health")).andExpect(status().isNotFound());
-		mvc.perform(get("/actuator")).andExpect(status().isNotFound());
+		// Authenticated, so a 404 proves the endpoints do not exist rather than being hidden by security
+		mvc.perform(get("/actuator/health").with(jwt())).andExpect(status().isNotFound());
+		mvc.perform(get("/actuator").with(jwt())).andExpect(status().isNotFound());
 	}
 
 	@TestConfiguration

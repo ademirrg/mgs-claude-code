@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.mgs.claudecode.config.OpenApiConfig;
 import com.mgs.claudecode.dto.PersonRequest;
 import com.mgs.claudecode.dto.PersonResponse;
 import com.mgs.claudecode.service.PersonService;
@@ -22,11 +23,16 @@ import com.mgs.claudecode.service.PersonService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/persons")
-@Tag(name = "Persons", description = "Create, read, update and delete people")
+@Tag(name = "Persons", description = "Create, read, update and delete people. Reading requires the USER or "
+		+ "ADMIN role; writing requires ADMIN.")
+@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
+@ApiResponse(responseCode = "401", description = "Missing, invalid or expired token")
+@ApiResponse(responseCode = "403", description = "Authenticated user lacks the required role")
 public class PersonController {
 
 	private final PersonService service;

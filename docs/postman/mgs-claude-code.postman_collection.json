@@ -1,0 +1,972 @@
+{
+	"info": {
+		"name": "mgs-claude-code API",
+		"description": "Requests for the mgs-claude-code API: JWT login, Person CRUD and health check.\n\nRun the folders in order. **Auth** logs in as `admin` and `user` and stores their tokens in the collection variables `adminToken` and `userToken`. The collection's default auth is `Bearer {{adminToken}}`; requests in **Authorization checks** override it to test 401/403.\n\nSelect the **mgs-claude-code local** environment (or set `baseUrl` and the credential variables yourself).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{adminToken}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "adminToken",
+			"value": ""
+		},
+		{
+			"key": "userToken",
+			"value": ""
+		},
+		{
+			"key": "personId",
+			"value": ""
+		},
+		{
+			"key": "personEmail",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Exchange credentials for JWT access tokens. Public endpoint.",
+			"item": [
+				{
+					"name": "Login as admin",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"const body = pm.response.json();",
+									"pm.test('Returns a Bearer token', () => {",
+									"    pm.expect(body.accessToken).to.be.a('string').and.not.empty;",
+									"    pm.expect(body.tokenType).to.eql('Bearer');",
+									"    pm.expect(body.expiresIn).to.be.above(0);",
+									"});",
+									"pm.collectionVariables.set('adminToken', body.accessToken);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{adminUsername}}\",\n    \"password\": \"{{adminPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in with the ADMIN account and saves the token to `adminToken`."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"admin123\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/auth/login",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"accessToken\": \"eyJhbGciOiJIUzI1NiJ9...\",\n    \"tokenType\": \"Bearer\",\n    \"expiresIn\": 3600\n}"
+						}
+					]
+				},
+				{
+					"name": "Login as user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"const body = pm.response.json();",
+									"pm.test('Returns a Bearer token', () => pm.expect(body.accessToken).to.be.a('string').and.not.empty);",
+									"pm.collectionVariables.set('userToken', body.accessToken);"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{userUsername}}\",\n    \"password\": \"{{userPassword}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Logs in with the USER account and saves the token to `userToken`."
+					},
+					"response": []
+				},
+				{
+					"name": "Login with wrong password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"{{adminUsername}}\",\n    \"password\": \"wrong-password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login with blank credentials",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 400', () => pm.response.to.have.status(400));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"\",\n    \"password\": \"\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "Health check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Application is UP', () => {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.status).to.eql('UP');",
+									"    pm.expect(body.timestamp).to.be.a('string');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/health",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"health"
+							]
+						},
+						"description": "Public. Returns 200 when UP, 503 when the application or one of its dependencies is down."
+					},
+					"response": [
+						{
+							"name": "200 OK",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/health",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"health"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"body": "{\n    \"status\": \"UP\",\n    \"timestamp\": \"2026-10-29T18:00:00Z\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Persons",
+			"description": "CRUD on people as ADMIN (uses the collection's `Bearer {{adminToken}}`). Run **Auth > Login as admin** first.",
+			"item": [
+				{
+					"name": "Create person",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"// Unique email so the collection can be run repeatedly against the same database",
+									"pm.collectionVariables.set('personEmail', `alice.${Date.now()}@example.com`);"
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 201', () => pm.response.to.have.status(201));",
+									"const body = pm.response.json();",
+									"pm.test('Returns the created person', () => {",
+									"    pm.expect(body.id).to.be.a('number');",
+									"    pm.expect(body.firstName).to.eql('Alice');",
+									"    pm.expect(body.email).to.eql(pm.collectionVariables.get('personEmail'));",
+									"});",
+									"pm.test('Location header points to the person', () => {",
+									"    pm.expect(pm.response.headers.get('Location')).to.eql(`/api/persons/${body.id}`);",
+									"});",
+									"pm.collectionVariables.set('personId', body.id);"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Smith\",\n    \"email\": \"{{personEmail}}\",\n    \"birthDate\": \"1990-05-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						},
+						"description": "Requires ADMIN. Saves the new id to `personId`.\n\nRules: `firstName`/`lastName` required (max 100), `email` required, valid and unique (max 255), `birthDate` optional and in the past."
+					},
+					"response": [
+						{
+							"name": "201 Created",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Smith\",\n    \"email\": \"alice@example.com\",\n    \"birthDate\": \"1990-05-01\"\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/persons",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"persons"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								},
+								{
+									"key": "Location",
+									"value": "/api/persons/1"
+								}
+							],
+							"body": "{\n    \"id\": 1,\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Smith\",\n    \"email\": \"alice@example.com\",\n    \"birthDate\": \"1990-05-01\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Create person with duplicate email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 409', () => pm.response.to.have.status(409));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Other\",\n    \"lastName\": \"Person\",\n    \"email\": \"{{personEmail}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						},
+						"description": "Reuses the email from **Create person**."
+					},
+					"response": []
+				},
+				{
+					"name": "Create person with invalid payload",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 400', () => pm.response.to.have.status(400));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"\",\n    \"lastName\": \"Smith\",\n    \"email\": \"not-an-email\",\n    \"birthDate\": \"2999-01-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List people",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Includes the created person', () => {",
+									"    const ids = pm.response.json().map(p => p.id);",
+									"    pm.expect(ids).to.include(Number(pm.collectionVariables.get('personId')));",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						},
+						"description": "Requires USER or ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Get person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns the person', () => {",
+									"    const body = pm.response.json();",
+									"    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get('personId')));",
+									"    pm.expect(body.lastName).to.eql('Smith');",
+									"    pm.expect(body.birthDate).to.eql('1990-05-01');",
+									"});"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{personId}}"
+							]
+						},
+						"description": "Requires USER or ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Update person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Last name was updated', () => pm.expect(pm.response.json().lastName).to.eql('Jones'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Alice\",\n    \"lastName\": \"Jones\",\n    \"email\": \"{{personEmail}}\",\n    \"birthDate\": \"1990-05-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{personId}}"
+							]
+						},
+						"description": "Requires ADMIN. Replaces all fields; returns 409 if the email belongs to another person."
+					},
+					"response": []
+				},
+				{
+					"name": "Get unknown person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 404', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/999999",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"999999"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 204', () => pm.response.to.have.status(204));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{personId}}"
+							]
+						},
+						"description": "Requires ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "Get deleted person",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 404', () => pm.response.to.have.status(404));"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/{{personId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"{{personId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authorization checks",
+			"description": "Verifies the role rules: no token → 401, USER can read but not write → 403.",
+			"item": [
+				{
+					"name": "List people without token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List people with invalid token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 401', () => pm.response.to.have.status(401));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "not-a-valid-jwt",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List people as user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 200', () => pm.response.to.have.status(200));",
+									"pm.test('Returns an array', () => pm.expect(pm.response.json()).to.be.an('array'));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create person as user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 403', () => pm.response.to.have.status(403));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Bob\",\n    \"lastName\": \"Brown\",\n    \"email\": \"bob@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update person as user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 403', () => pm.response.to.have.status(403));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstName\": \"Bob\",\n    \"lastName\": \"Brown\",\n    \"email\": \"bob@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete person as user",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"pm.test('Status is 403', () => pm.response.to.have.status(403));"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/persons/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"persons",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
